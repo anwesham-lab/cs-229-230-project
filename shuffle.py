@@ -6,7 +6,6 @@ def shuffle(filename, prefix):
     df = pd.read_csv(filename, header=None, names=['label', 'message'])
     ds = df.sample(frac=1, random_state=30)
     filename_new = prefix + 'shuffled.csv'
-    ds['message'] = ds['message'].str.replace('"', '')
     ds.to_csv(filename_new, header=False, index=False)
     return ds
 
@@ -26,7 +25,10 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Add Arguments')
     parser.add_argument('--file', default='imdb_data_raw.csv', metavar='path', 
                         required=False, help='the path to workspace')
-    parser.add_argument('--split', default=True, type=bool, 
+    parser.add_argument('--split', default=True, metavar='bool', 
                         required=False, help='the path to workspace')
     args = parser.parse_args()
-    main(filename=args.file, split=args.split)
+    split = True
+    if args.split == 'false' or args.split == 'False':
+        split = False
+    main(filename=args.file, split=split)
