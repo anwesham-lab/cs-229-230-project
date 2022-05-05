@@ -3,7 +3,7 @@ import numpy as np
 import argparse
 
 def shuffle(filename):
-    df = pd.read_csv(filename, header=None, names=['message', 'label'])
+    df = pd.read_csv(filename, header=None, names=['label', 'message'])
     ds = df.sample(frac=1, random_state=30)
     prefix = filename[:-7]
     filename_new = prefix + 'shuffled.csv'
