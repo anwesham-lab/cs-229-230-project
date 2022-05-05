@@ -7,8 +7,7 @@ def shuffle(filename):
     ds = df.sample(frac=1, random_state=30)
     prefix = filename[:-7]
     filename_new = prefix + 'shuffled.csv'
-    ds['message'] = ds['message'].str.replace(r'\"$', '')
-    ds['message'] = ds['message'].str.replace(r'^\"', '')
+    ds['message'] = ds['message'].str.replace('"', '')
     ds.to_csv(filename_new, header=False, index=False)
 
     train, dev, test = np.split(ds.sample(frac=1, random_state=42), [int(.8*len(df)), int(.9*len(df))])
