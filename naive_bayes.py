@@ -44,7 +44,6 @@ def get_words(message):
     """
 
     # *** START CODE HERE ***
-
     for character in string.punctuation:
         if character != "!" and character != "'":
             message = message.replace(character, ' ')
@@ -72,7 +71,6 @@ def create_dictionary(messages):
     # *** START CODE HERE ***
     counter = collections.Counter()
     for message in messages:
-        print(set(get_words(message)))
         counter.update(set(get_words(message)))
     common_words = [word for word, count in counter.items() if count >= 5]
     return {word: index for index, word in enumerate(common_words)}
