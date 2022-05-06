@@ -74,6 +74,30 @@ def load_spam_dataset(tsv_path):
 
     return messages, np.array(labels)
 
+
+def load_sentiment_dataset(tsv_path):
+    """Load the spam dataset from a TSV file
+
+    Args:
+         csv_path: Path to TSV file containing dataset.
+
+    Returns:
+        messages: A list of string values containing the text of each message.
+        labels: The binary labels (0 or 1) for each message. A 1 indicates spam.
+    """
+
+    messages = []
+    labels = []
+
+    with open(tsv_path, 'r', newline='', encoding='utf8') as tsv_file:
+        reader = csv.reader(tsv_file, delimiter=',')
+
+        for label, message in reader:
+            labels.append(1 if label == 'positive' else 0)
+            messages.append(message)
+
+    return messages, np.array(labels)
+
 def plot(x, y, theta, save_path, correction=1.0):
     """Plot dataset and fitted logistic regression parameters.
 
