@@ -4,7 +4,7 @@ import util
 import csv
 import numpy as np
 import argparse
-import re
+import string
 
 def load_sentiment_csv(path):
     """Load the spam dataset from a TSV file
@@ -44,15 +44,10 @@ def get_words(message):
     """
 
     # *** START CODE HERE ***
-    message.replace('.', ' ')
-    message.replace(',', ' ')
-    message.replace(';', ' ')
-    message.replace(':', ' ')
-    message.replace('"', '')
-    message.replace('>', '')
-    message.replace('<', '')
-    message.replace('*', '')
-    message.replace('/', ' ')
+
+    for character in string.punctuation:
+        if character != "!" and character != "'":
+            message = message.replace(character, ' ')
     tokens = message.split(" ")
     return [token.lower() for token in tokens if token != ""]
     # *** END CODE HERE ***
@@ -208,7 +203,7 @@ def main(train_path, dev_path, test_path, dict, matrix_save):
     util.write_json(dict, dictionary)
 
     train_matrix = transform_text(train_messages, dictionary)
-    np.savetxt(matrix_save, train_matrix[:100,:])
+    # np.savetxt(matrix_save, train_matrix[:100,:])
 
     dev_matrix = transform_text(dev_messages, dictionary)
     test_matrix = transform_text(test_messages, dictionary)
