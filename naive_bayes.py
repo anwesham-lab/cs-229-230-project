@@ -1,10 +1,33 @@
 import collections
 from cv2 import log
-
-import numpy as np
-
 import util
+import csv
+import numpy as np
+import argparse
+import string
 
+def load_sentiment_csv(path):
+    """Load the spam dataset from a TSV file
+
+    Args:
+         csv_path: Path to TSV file containing dataset.
+
+    Returns:
+        messages: A list of string devues containing the text of each message.
+        labels: The binary labels (0 or 1) for each message. A 1 indicates spam.
+    """
+
+    messages = []
+    labels = []
+
+    with open(path, 'r', newline='', encoding='utf8') as data_file:
+        reader = csv.reader(data_file, delimiter=',')
+
+        for label, message in reader:
+            messages.append(message[1:-1])
+            labels.append(1 if label == 'positive' else 0)
+
+    return messages, np.array(labels)
 
 def get_words(message):
     """Get the normalized list of words from a message string.
@@ -14,15 +37,18 @@ def get_words(message):
     you should convert everything to lowercase.
 
     Args:
-        message: A string containing an SMS message
+        message: A string containing a sentiment message
 
     Returns:
        The list of normalized words from the message.
     """
 
     # *** START CODE HERE ***
+    for character in string.punctuation:
+        if character != "!" and character != "'":
+            message = message.replace(character, ' ')
     tokens = message.split(" ")
-    return [token.lower() for token in tokens]
+    return [token.lower() for token in tokens if token != ""]
     # *** END CODE HERE ***
 
 
@@ -46,7 +72,6 @@ def create_dictionary(messages):
     counter = collections.Counter()
     for message in messages:
         counter.update(set(get_words(message)))
-    
     common_words = [word for word, count in counter.items() if count >= 5]
     return {word: index for index, word in enumerate(common_words)}
     # *** END CODE HERE ***
@@ -144,7 +169,7 @@ def predict_from_naive_bayes_model(model, matrix):
     # *** END CODE HERE ***
 
 
-def get_top_five_naive_bayes_words(model, dictionary):
+def get_top_five_naive_bayes_words(model, dictionary, positive):
     """Compute the top five words that are most indicative of the spam (i.e positive) class.
 
     Ues the metric given in part-c as a measure of how indicative a word is.
@@ -157,45 +182,53 @@ def get_top_five_naive_bayes_words(model, dictionary):
     Returns: A list of the top five most indicative words in sorted order with the most indicative first
     """
     # *** START CODE HERE ***
-    top_indexes = np.argsort(model['log_theta0'] - model['log_theta1'])[:5]
+    if positive:
+        top_indexes = np.argsort(model['log_theta0'] - model['log_theta1'])[:5]
+    else:
+        top_indexes = np.argsort(model['log_theta1'] - model['log_theta0'])[:5]
     index_mappings = {index: word for word, index in dictionary.items()}
     return [index_mappings[idx] for idx in top_indexes]
     # *** END CODE HERE ***
 
 
-def main():
-    train_messages, train_labels = util.load_spam_dataset('spam_train.tsv')
-    val_messages, val_labels = util.load_spam_dataset('spam_val.tsv')
-    test_messages, test_labels = util.load_spam_dataset('spam_test.tsv')
+def main(train_path, dev_path, test_path, prefix):
+    train_messages, train_labels = load_sentiment_csv(train_path)
+    dev_messages, dev_labels = load_sentiment_csv(dev_path)
+    test_messages, test_labels = load_sentiment_csv(test_path)
 
     dictionary = create_dictionary(train_messages)
-
     print('Size of dictionary: ', len(dictionary))
-
-    util.write_json('spam_dictionary', dictionary)
+    util.write_json(prefix + '_dictionary', dictionary)
 
     train_matrix = transform_text(train_messages, dictionary)
 
-    np.savetxt('spam_sample_train_matrix', train_matrix[:100,:])
-
-    val_matrix = transform_text(val_messages, dictionary)
+    dev_matrix = transform_text(dev_messages, dictionary)
     test_matrix = transform_text(test_messages, dictionary)
 
     naive_bayes_model = fit_naive_bayes_model(train_matrix, train_labels)
-
     naive_bayes_predictions = predict_from_naive_bayes_model(naive_bayes_model, test_matrix)
-
-    np.savetxt('spam_naive_bayes_predictions', naive_bayes_predictions)
+    np.savetxt(prefix + '_naive_bayes_predictions', naive_bayes_predictions)
 
     naive_bayes_accuracy = np.mean(naive_bayes_predictions == test_labels)
-
     print('Naive Bayes had an accuracy of {} on the testing set'.format(naive_bayes_accuracy))
 
-    top_5_words = get_top_five_naive_bayes_words(naive_bayes_model, dictionary)
+    top_5_pos_words = get_top_five_naive_bayes_words(naive_bayes_model, dictionary, True)
+    print('The top 5 positive indicative words for Naive Bayes are: ', top_5_pos_words)
+    util.write_json(prefix + '_positive_top_indicative_words', top_5_pos_words)
 
-    print('The top 5 indicative words for Naive Bayes are: ', top_5_words)
-
-    util.write_json('spam_top_indicative_words', top_5_words)
+    top_5_neg_words = get_top_five_naive_bayes_words(naive_bayes_model, dictionary, False)
+    print('The top 5 negative indicative words for Naive Bayes are: ', top_5_neg_words)
+    util.write_json(prefix + '_negative_top_indicative_words', top_5_neg_words)
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description='Add Arguments')
+    parser.add_argument('--train', default='imdb_data_train.csv', metavar='path', 
+                        required=False, help='training data path')
+    parser.add_argument('--dev', default='imdb_data_dev.csv', metavar='path', 
+                        required=False, help='dev/validation data path')
+    parser.add_argument('--test', default='imdb_data_test.csv', metavar='path', 
+                        required=False, help='testing data path')
+    parser.add_argument('--prefix', default='imdb', metavar='string', 
+                        required=False, help='Prefix for Save Paths (Data Origin)')
+    args = parser.parse_args()
+    main(train_path=args.train, dev_path=args.dev, test_path=args.test, prefix=args.prefix)

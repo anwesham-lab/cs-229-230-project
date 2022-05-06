@@ -1,0 +1,4 @@
+Size of dictionary:  36869
+Naive Bayes had an accuracy of 0.85 on the testing set
+The top 5 positive indicative words for Naive Bayes are:  ['ponyo', 'gypo', 'yokai', 'haruhi', 'sosuke']
+The top 5 negative indicative words for Naive Bayes are:  ['chupacabra', 'komodo', 'caligula', 'uwe', 'boll']

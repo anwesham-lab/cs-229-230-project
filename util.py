@@ -1,9 +1,6 @@
-import csv
-
 import matplotlib.pyplot as plt
 import numpy as np
 import json
-
 
 def add_intercept_fn(x):
     """Add intercept to matrix x.
@@ -20,6 +17,7 @@ def add_intercept_fn(x):
 
     return new_x
 
+<<<<<<< HEAD:spam/util.py
 def load_csv(csv_path, label_col='y', add_intercept=False):
     """Load dataset from a CSV file.
 
@@ -98,6 +96,8 @@ def load_sentiment_dataset(tsv_path):
 
     return messages, np.array(labels)
 
+=======
+>>>>>>> 9eafe46d9011b6a2124ef3538b137f57b8d743a2:util.py
 def plot(x, y, theta, save_path, correction=1.0):
     """Plot dataset and fitted logistic regression parameters.
 
