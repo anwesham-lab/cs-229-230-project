@@ -191,35 +191,34 @@ def get_top_five_naive_bayes_words(model, dictionary, positive):
     # *** END CODE HERE ***
 
 
-def main(train_path, dev_path, test_path, dict, matrix_save):
+def main(train_path, dev_path, test_path, prefix):
     train_messages, train_labels = load_sentiment_csv(train_path)
     dev_messages, dev_labels = load_sentiment_csv(dev_path)
     test_messages, test_labels = load_sentiment_csv(test_path)
 
     dictionary = create_dictionary(train_messages)
     print('Size of dictionary: ', len(dictionary))
-    util.write_json(dict, dictionary)
+    util.write_json(prefix + '_dictionary', dictionary)
 
     train_matrix = transform_text(train_messages, dictionary)
-    # np.savetxt(matrix_save, train_matrix[:100,:])
 
     dev_matrix = transform_text(dev_messages, dictionary)
     test_matrix = transform_text(test_messages, dictionary)
 
-    # naive_bayes_model = fit_naive_bayes_model(train_matrix, train_labels)
-    # naive_bayes_predictions = predict_from_naive_bayes_model(naive_bayes_model, test_matrix)
-    # np.savetxt('spam_naive_bayes_predictions', naive_bayes_predictions)
+    naive_bayes_model = fit_naive_bayes_model(train_matrix, train_labels)
+    naive_bayes_predictions = predict_from_naive_bayes_model(naive_bayes_model, test_matrix)
+    np.savetxt(prefix + '_naive_bayes_predictions', naive_bayes_predictions)
 
-    # naive_bayes_accuracy = np.mean(naive_bayes_predictions == test_labels)
-    # print('Naive Bayes had an accuracy of {} on the testing set'.format(naive_bayes_accuracy))
+    naive_bayes_accuracy = np.mean(naive_bayes_predictions == test_labels)
+    print('Naive Bayes had an accuracy of {} on the testing set'.format(naive_bayes_accuracy))
 
-    # top_5_pos_words = get_top_five_naive_bayes_words(naive_bayes_model, dictionary, True)
-    # print('The top 5 positive indicative words for Naive Bayes are: ', top_5_pos_words)
-    # util.write_json('positive_sentiment_top_indicative_words', top_5_pos_words)
+    top_5_pos_words = get_top_five_naive_bayes_words(naive_bayes_model, dictionary, True)
+    print('The top 5 positive indicative words for Naive Bayes are: ', top_5_pos_words)
+    util.write_json(prefix + '_positive_top_indicative_words', top_5_pos_words)
 
-    # top_5_neg_words = get_top_five_naive_bayes_words(naive_bayes_model, dictionary, False)
-    # print('The top 5 positive indicative words for Naive Bayes are: ', top_5_neg_words)
-    # util.write_json('positive_sentiment_top_indicative_words', top_5_neg_words)
+    top_5_neg_words = get_top_five_naive_bayes_words(naive_bayes_model, dictionary, False)
+    print('The top 5 negative indicative words for Naive Bayes are: ', top_5_neg_words)
+    util.write_json(prefix + '_negative_top_indicative_words', top_5_neg_words)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Add Arguments')
@@ -229,9 +228,7 @@ if __name__ == "__main__":
                         required=False, help='dev/validation data path')
     parser.add_argument('--test', default='imdb_data_test.csv', metavar='path', 
                         required=False, help='testing data path')
-    parser.add_argument('--dict', default='imdb_dictionary', metavar='string', 
-                        required=False, help='Name of Dictionary file')
-    parser.add_argument('--matrix', default='imdb_sentiment_sample_matrix', metavar='string', 
-                        required=False, help='Name of Sample Matrix file')
+    parser.add_argument('--prefix', default='imdb', metavar='string', 
+                        required=False, help='Prefix for Save Paths (Data Origin)')
     args = parser.parse_args()
-    main(train_path=args.train, dev_path=args.dev, test_path=args.test, dict=args.dict, matrix_save=args.matrix)
+    main(train_path=args.train, dev_path=args.dev, test_path=args.test, prefix=args.prefix)
