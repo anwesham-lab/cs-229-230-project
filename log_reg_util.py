@@ -2,7 +2,7 @@
 
 import collections
 import numpy as np
-from spam import util
+import util
 
 def get_words(message):
     """Get the normalized list of words from a message string.
