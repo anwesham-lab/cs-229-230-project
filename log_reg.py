@@ -12,10 +12,13 @@ from sklearn.linear_model import LogisticRegression
 
 def log_reg(X_train, y_train, X_test, y_test):
 	print("Started")
+	
+	'''
 	sc = StandardScaler()
 	X_train = sc.fit_transform(X_train)
-	X_test = sc.fit_transform(X_test)
+	X_test = sc.transform(X_test)
 	print("Scaled")
+	'''
 
 	print(X_train)
 	print(y_train)

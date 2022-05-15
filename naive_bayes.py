@@ -1,10 +1,12 @@
 import collections
-from cv2 import log
+# from cv2 import log
 import util
 import csv
 import numpy as np
 import argparse
 import string
+import sklearn
+from sklearn import metrics
 
 def load_sentiment_csv(path):
     """Load the spam dataset from a TSV file
@@ -211,6 +213,9 @@ def main(train_path, dev_path, test_path, prefix):
 
     naive_bayes_accuracy = np.mean(naive_bayes_predictions == test_labels)
     print('Naive Bayes had an accuracy of {} on the testing set'.format(naive_bayes_accuracy))
+    
+    f1_score = metrics.f1_score(test_labels, naive_bayes_predictions)
+    print('Naive Bayes had an f1 score of {} on the testing set'.format(f1_score))
 
     top_5_pos_words = get_top_five_naive_bayes_words(naive_bayes_model, dictionary, True)
     print('The top 5 positive indicative words for Naive Bayes are: ', top_5_pos_words)
