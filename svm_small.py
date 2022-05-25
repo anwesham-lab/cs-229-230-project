@@ -1,4 +1,4 @@
-# Logistic Regression Baseline for IMDB Dataset.
+# SVM Baseline for IMDB Dataset.
 
 import numpy as np
 import pandas as pd
@@ -8,7 +8,7 @@ from sklearn import metrics
 from log_reg_util_small import create_dictionary, transform_text
 import util
 import matplotlib
-from sklearn.linear_model import LogisticRegression
+from sklearn import svm
 
 def log_reg(X_train, y_train, X_test, y_test, min_freq):
 	print("Started")
@@ -19,14 +19,16 @@ def log_reg(X_train, y_train, X_test, y_test, min_freq):
 	X_test = sc.transform(X_test)
 	print("Scaled")
 	
-
 	print(X_train)
 	print(y_train)
-	clf_lr = LogisticRegression(random_state=0, class_weight = 'balanced')
-	clf_lr.fit(X_train, y_train)
+	indices = np.random.randint(0, X_train.shape[0], 10000)
+	X_train_subset = np.asarray([X_train[i] for i in indices])
+	y_train_subset = np.asarray([y_train[i] for i in indices])
+	assert(X_train_subset.shape[0] == y_train_subset.shape[0])
+	clf_svm = svm.LinearSVC()
+	clf_svm.fit(X_train_subset, y_train_subset)
 	print("Fit")
-	# print('Logistic Regression Train Accuracy: ', clf_lr.score(X_train, y_train))
-	predictions = clf_lr.predict(X_test)
+	predictions = clf_svm.predict(X_test)
 	print("Predict")
 	accuracy = metrics.accuracy_score(y_test, predictions)
 	f1_score = metrics.f1_score(y_test, predictions)

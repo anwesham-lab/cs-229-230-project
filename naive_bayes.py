@@ -1,3 +1,5 @@
+# Naive Bayes Baseline for IMDB Dataset
+
 import collections
 # from cv2 import log
 import util
