@@ -22,10 +22,11 @@ def log_reg(X_train, y_train, X_valid, y_valid, X_test, y_test, min_freq, step_s
 	valid_acc = None
 	for i in range(max_iter):
 		preds_val = 1 / (1 + np.exp(-np.dot(X_valid, theta)))
+		preds_val = [1 if x >= 0.5 else 0 for x in preds_val]
 		valid_acc_new = metrics.accuracy_score(y_valid, preds_val)
 		if valid_acc != None and valid_acc_new - valid_acc < 0:
 			step_size *= 0.9
-		elif valid_acc_new - valid_acc < eps:
+		elif valid_acc != None and valid_acc_new - valid_acc < eps:
 			break
 		valid_acc = valid_acc_new
 
@@ -41,6 +42,7 @@ def log_reg(X_train, y_train, X_valid, y_valid, X_test, y_test, min_freq, step_s
 	print("Fit")
 	# print('Logistic Regression Train Accuracy: ', clf_lr.score(X_train, y_train))
 	predictions = 1 / (1 + np.exp(-np.dot(X_test, theta)))
+	predictions = [1 if x >= 0.5 else 0 for x in predictions]
 	#predictions = clf_lr.predict(X_test)
 	print("Predict")
 	accuracy = metrics.accuracy_score(y_test, predictions)
@@ -48,9 +50,9 @@ def log_reg(X_train, y_train, X_valid, y_valid, X_test, y_test, min_freq, step_s
 	print(f'Minimum word frequency = {min_freq}, accuracy = {accuracy}, f1_score = {f1_score}')
 
 def main():
-	train_path = "imdb_data_train.csv"
-	valid_path = "imdb_data_dev.csv"
-	test_path = "imdb_data_test.csv"
+	train_path = "imdb/imdb_data_train.csv"
+	valid_path = "imdb/imdb_data_dev.csv"
+	test_path = "imdb/imdb_data_test.csv"
 
 	train_reviews, train_labels = util.load_sentiment_dataset(train_path)
 	valid_reviews, valid_labels = util.load_sentiment_dataset(valid_path)
