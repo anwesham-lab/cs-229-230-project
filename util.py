@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import json
 import csv
+import random
 
 def add_intercept_fn(x):
     """Add intercept to matrix x.
@@ -72,8 +73,72 @@ def load_spam_dataset(tsv_path):
 
     return messages, np.array(labels)
 
-
 def load_sentiment_dataset(tsv_path):
+    messages, labels = None, None
+    root = tsv_path[:tsv_path.find('/')]
+    if root == 'imdb':
+        messages, labels = load_imdb_dataset(tsv_path)
+    elif root == 'rotten_tomatoes':
+        messages, labels = load_rotten_tomatoes_dataset(tsv_path)
+    elif root == 'twit_prod':
+        messages, labels = load_twitprod_dataset(tsv_path)
+    elif root == 'twit_senti':
+        messages, labels = load_twitsenti_dataset(tsv_path)
+    return messages, np.array(labels)
+
+def load_imdb_dataset(tsv_path):
+    messages = []
+    labels = []
+
+    with open(tsv_path, 'r', newline='', encoding='utf8') as tsv_file:
+        reader = csv.reader(tsv_file, delimiter=',')
+        for label, message in reader:
+            if label == 'positive' or label == 'negative':
+                labels.append(1 if label == 'positive' else 0)
+                messages.append(message)
+
+    return messages, np.array(labels)
+
+def load_rotten_tomatoes_dataset(tsv_path):
+    messages = []
+    labels = []
+
+    with open(tsv_path, 'r', newline='', encoding='utf8') as tsv_file:
+        reader = csv.reader(tsv_file, delimiter=',')
+        for message, label in reader:
+            if label == '0' or label == '1':
+                labels.append(int(label))
+                messages.append(message)
+
+    return messages, np.array(labels)
+
+def load_twitprod_dataset(tsv_path):
+    messages = []
+    labels = []
+
+    with open(tsv_path, 'r', newline='', encoding='utf8') as tsv_file:
+        reader = csv.reader(tsv_file, delimiter=',')
+        for label, message in reader:
+            if label == '0' or label == '1':
+                labels.append(0 if label == '1' else 1)
+                messages.append(message)
+
+    return messages, np.array(labels)
+
+def load_twitsenti_dataset(tsv_path):
+    messages = []
+    labels = []
+
+    with open(tsv_path, 'r', newline='', encoding='utf8') as tsv_file:
+        reader = csv.reader(tsv_file, delimiter=',')
+        for label, message in reader:
+            if label == '0' or label == '1':
+                labels.append(int(label))
+                messages.append(message)
+
+    return messages, np.array(labels)
+
+def load_sentiment_dataset_few(tsv_path, tsv_path_few):
     """Load the spam dataset from a TSV file
 
     Args:
@@ -84,17 +149,43 @@ def load_sentiment_dataset(tsv_path):
         labels: The binary labels (0 or 1) for each message. A 1 indicates spam.
     """
 
-    messages = []
-    labels = []
+    messages, labels = load_sentiment_dataset(tsv_path)
 
-    with open(tsv_path, 'r', newline='', encoding='utf8') as tsv_file:
-        reader = csv.reader(tsv_file, delimiter=',')
+    few_messages, few_labels = None,  None
+    few_root = tsv_path_few[:tsv_path_few.find('/')]
+    if few_root == 'imdb':
+        few_messages, few_labels = load_imdb_dataset(tsv_path_few)
+    elif few_root == 'rotten_tomatoes':
+        few_messages, few_labels = load_rotten_tomatoes_dataset(tsv_path_few)
+    elif few_root == 'twit_prod':
+        few_messages, few_labels = load_twitprod_dataset(tsv_path_few)
+    elif few_root == 'twit_senti':
+        few_messages, few_labels = load_twitsenti_dataset(tsv_path_few)
+    messages.extend(few_messages[:2000])
+    labels = np.append(labels, few_labels[:2000])
 
-        for label, message in reader:
-            labels.append(1 if label == 'positive' else 0)
-            messages.append(message)
+    '''
+    with open(tsv_path_few, 'r', newline='', encoding='utf8') as tsv_file_few:
+        reader2 = csv.reader(tsv_file_few, delimiter=',')
+        indices = sorted(random.sample(range(sum(1 for row in reader2)), 2000), reverse=True)
+        count = 0
+        for label, message in reader2:
+            if count != indices[-1]: 
+                continue
+            if label == 'positive' or label == 'negative':
+                labels.append(1 if label == 'positive' else 0)
+                #labels.append(0 if label == 'positive' else 1) #TWITPROD
+                messages.append(message)
+            elif label == '0' or label == '1':
+                labels.append(int(label))
+                #labels.append(0 if label == '1' else 1) #TWITPROD
+                messages.append(message)
+            count += 1
+            indices = indices[:-1]
+    '''
 
-    return messages, np.array(labels)
+    return messages, labels
+
 
 def plot(x, y, theta, save_path, correction=1.0):
     """Plot dataset and fitted logistic regression parameters.

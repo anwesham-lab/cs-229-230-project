@@ -50,15 +50,16 @@ def log_reg(X_train, y_train, X_valid, y_valid, X_test, y_test, min_freq, step_s
 	print(f'Minimum word frequency = {min_freq}, accuracy = {accuracy}, f1_score = {f1_score}')
 
 def main():
-	train_path = "imdb/imdb_data_train.csv"
+	train_path = "twit_senti/twitsenti_train.csv"
+	train_path_few = "imdb/imdb_data_train.csv"
 	valid_path = "imdb/imdb_data_dev.csv"
 	test_path = "imdb/imdb_data_test.csv"
 
-	train_reviews, train_labels = util.load_sentiment_dataset(train_path)
+	#train_reviews, train_labels = util.load_sentiment_dataset(train_path) #ZERO
+	train_reviews, train_labels = util.load_sentiment_dataset_few(train_path, train_path_few) #FEW
 	valid_reviews, valid_labels = util.load_sentiment_dataset(valid_path)
 	test_reviews, test_labels = util.load_sentiment_dataset(test_path)
-
-	min_frequencies = [50, 40, 30, 20, 10] 
+	min_frequencies = [50, 40, 30, 20] 
 	
 	for freq in min_frequencies:
 		dictionary = create_dictionary(train_reviews, freq)
