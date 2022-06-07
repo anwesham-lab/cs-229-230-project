@@ -40,7 +40,6 @@ def log_reg(X_train, y_train, X_valid, y_valid, X_test, y_test, min_freq, step_s
 	#clf_lr = LogisticRegression(random_state=0, class_weight = 'balanced')
 	#clf_lr.fit(X_train, y_train)
 	print("Fit")
-	# print('Logistic Regression Train Accuracy: ', clf_lr.score(X_train, y_train))
 	predictions = 1 / (1 + np.exp(-np.dot(X_test, theta)))
 	predictions = [1 if x >= 0.5 else 0 for x in predictions]
 	#predictions = clf_lr.predict(X_test)
@@ -50,13 +49,14 @@ def log_reg(X_train, y_train, X_valid, y_valid, X_test, y_test, min_freq, step_s
 	print(f'Minimum word frequency = {min_freq}, accuracy = {accuracy}, f1_score = {f1_score}')
 
 def main():
-	train_path = "twit_senti/twitsenti_train.csv"
-	train_path_few = "imdb/imdb_data_train.csv"
+	# Example of few-shot learning with IMDB and Rotten Tomatoes
+	train_path = "imdb/imdb_data_train.csv"
+	train_path_few = "rotten_tomatoes/rotten_tomatoes_train.csv"
 	valid_path = "imdb/imdb_data_dev.csv"
 	test_path = "imdb/imdb_data_test.csv"
 
-	#train_reviews, train_labels = util.load_sentiment_dataset(train_path) #ZERO
-	train_reviews, train_labels = util.load_sentiment_dataset_few(train_path, train_path_few) #FEW
+	#train_reviews, train_labels = util.load_sentiment_dataset(train_path) #ZERO-SHOT
+	train_reviews, train_labels = util.load_sentiment_dataset_few(train_path, train_path_few) #FEW-SHOT
 	valid_reviews, valid_labels = util.load_sentiment_dataset(valid_path)
 	test_reviews, test_labels = util.load_sentiment_dataset(test_path)
 	min_frequencies = [50, 40, 30, 20] 
